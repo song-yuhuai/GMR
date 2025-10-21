@@ -33,6 +33,20 @@ if __name__ == "__main__":
         action="store_true",
         help="Loop the motion.",
     )
+
+    parser.add_argument(
+        "--start_frame",
+        default=0,
+        type=int,
+        help="First frame index (inclusive) to retarget.",
+    )
+
+    parser.add_argument(
+        "--end_frame",
+        default=None,
+        type=int,
+        help="Last frame index (inclusive) to retarget. Defaults to the last frame.",
+    )
     
     parser.add_argument(
         "--robot",
@@ -109,11 +123,36 @@ if __name__ == "__main__":
     
     print(f"mocap_frame_rate: {motion_fps}")
     
+    num_frames = len(lafan1_data_frames)
+
+    if args.start_frame < 0 or args.start_frame >= num_frames:
+        raise ValueError(
+            f"start_frame ({args.start_frame}) must be within the range [0, {num_frames - 1}]"
+        )
+
+    if args.end_frame is not None and (args.end_frame < 0 or args.end_frame >= num_frames):
+        raise ValueError(
+            f"end_frame ({args.end_frame}) must be within the range [0, {num_frames - 1}]"
+        )
+
+    start_frame = args.start_frame
+    end_frame = num_frames - 1 if args.end_frame is None else args.end_frame
+
+    if start_frame > end_frame:
+        raise ValueError(
+            f"Invalid frame range: start_frame ({start_frame}) must be less than or equal to end_frame ({end_frame})."
+        )
+
+    frames_to_process = end_frame - start_frame + 1
+
+    print(f"Retargeting frames {start_frame} to {end_frame} (total {frames_to_process})")
+
     # Create tqdm progress bar for the total number of frames
-    pbar = tqdm(total=len(lafan1_data_frames), desc="Retargeting")
+    pbar = None if args.loop else tqdm(total=frames_to_process, desc="Retargeting")
     
     # Start the viewer
-    i = 0
+    i = start_frame
+    processed_frames = 0
     
 
 
@@ -129,7 +168,8 @@ if __name__ == "__main__":
             fps_start_time = current_time
             
         # Update progress bar
-        pbar.update(1)
+        if pbar is not None:
+            pbar.update(1)
 
         # Update task targets.
         smplx_data = lafan1_data_frames[i]
@@ -150,10 +190,14 @@ if __name__ == "__main__":
         )
 
         if args.loop:
-            i = (i + 1) % len(lafan1_data_frames)
+            if i >= end_frame:
+                i = start_frame
+            else:
+                i += 1
         else:
             i += 1
-            if i >= len(lafan1_data_frames):
+            processed_frames += 1
+            if i > end_frame or processed_frames >= frames_to_process:
                 break
    
         
@@ -182,7 +226,8 @@ if __name__ == "__main__":
         print(f"Saved to {args.save_path}")
 
     # Close progress bar
-    pbar.close()
+    if pbar is not None:
+        pbar.close()
     
     robot_motion_viewer.close()
        
