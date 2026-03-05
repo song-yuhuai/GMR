@@ -200,6 +200,12 @@ if __name__ == "__main__":
         default=0.0,
         help="Maximum per-frame joint delta (rad) for joints. 0 disables.",
     )
+    parser.add_argument(
+        "--z_offset",
+        type=float,
+        default=0.0,
+        help="Vertical offset added to base_z when exporting (meters). Use -0.15 to move robot down 15 cm.",
+    )
 
     args = parser.parse_args()
 
@@ -300,6 +306,8 @@ if __name__ == "__main__":
     if args.save_path is not None:
         import pickle
         root_pos = np.array([qpos[:3] for qpos in qpos_list])
+        if args.z_offset != 0.0:
+            root_pos[:, 2] += args.z_offset
         # save from wxyz to xyzw
         root_rot = np.array([qpos[3:7][[1,2,3,0]] for qpos in qpos_list])
         dof_pos = np.array([qpos[7:] for qpos in qpos_list])
