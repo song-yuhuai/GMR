@@ -1,8 +1,8 @@
 {
     "robot_root_name": "pelvis",
     "human_root_name": "pelvis",
-    "ground_height": 0.0,
-    "human_height_assumption": 1.72,
+    "ground_height": 0.3,
+    "human_height_assumption": 1.7,
     "use_ik_match_table1": true,
     "use_ik_match_table2": true,
     "use_exact_root": true,
@@ -10,11 +10,11 @@
         "pelvis": 1.0,
         "spine3": 0.5,
         "left_hip": 0.0,
-        "left_knee": 0.68,
-        "left_foot": 0.65,
+        "left_knee": 0.6,
+        "left_foot": 0.6,
         "right_hip": 0.0,
-        "right_knee": 0.68,
-        "right_foot": 0.65,
+        "right_knee": 0.6,
+        "right_foot": 0.6,
         "left_shoulder": 1.12,
         "left_elbow": 1.12,
         "left_wrist": 1.0,
@@ -141,7 +141,7 @@
             10,
             [
                 0.0,
-                0.0,
+                -0.0,
                 0.0
             ],
             [
@@ -315,7 +315,7 @@
         ],
         "left_ankle_roll_link": [
             "left_foot",
-            100,
+            500,
             10,
             [
                 0.0,
@@ -363,11 +363,11 @@
         ],
         "right_ankle_roll_link": [
             "right_foot",
-            100,
+            500,
             10,
             [
                 0.0,
-                0.0,
+                -0.0,
                 0.0
             ],
             [
