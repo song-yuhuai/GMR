@@ -13,8 +13,12 @@ from general_motion_retargeting import ROBOT_XML_DICT
 #
 # agibot_x2/x2_ultra.xml defaults:
 # qpos0 = [root(7), 31 joint dofs], where all joint dofs are 0 by default.
-CUSTOM_ENTRY_POSE = [0.0, 0.0, 0.68, 1.0, 0.0, 0.0, 0.0] + [0.0] * 31
-CUSTOM_EXIT_POSE = [0.0, 0.0, 0.68, 1.0, 0.0, 0.0, 0.0] + [0.0] * 31
+CUSTOM_ENTRY_POSE = [0.0, 0.0, 0.68, 1.0, 0.0, 0.0, 0.0] + [-0.235, 0.0, 0.0, 0.5, -0.265, 0.0,
+                 -0.235, 0.0, 0.0, 0.5, -0.265, 0.0,
+                 0.0, 0.0] + [0.0] * 9
+CUSTOM_EXIT_POSE = [0.0, 0.0, 0.68, 1.0, 0.0, 0.0, 0.0] + [-0.235, 0.0, 0.0, 0.5, -0.265, 0.0,
+                 -0.235, 0.0, 0.0, 0.5, -0.265, 0.0,
+                 0.0, 0.0] +[0.0] * 9
 ENTRY_POSE_SOURCE = "custom_entry"
 EXIT_POSE_SOURCE = "custom_exit"
 
@@ -22,7 +26,7 @@ EXIT_POSE_SOURCE = "custom_exit"
 def _blend_qpos(a, b, alpha):
     alpha = float(np.clip(alpha, 0.0, 1.0))
     out = a.copy()
-    out[:3] = (1.0 - alpha) * a[:3] + alpha * b[:3]
+    out[:3] = a[:3]
 
     qa = a[3:7]
     qb = b[3:7]
@@ -163,6 +167,8 @@ def main():
     entry_pose = _resolve_pose(ENTRY_POSE_SOURCE, qpos_seq, args.robot)
     exit_pose = _resolve_pose(EXIT_POSE_SOURCE, qpos_seq, args.robot)
 
+    entry_pose[:3] = qpos_seq[0, :3]
+    exit_pose[:3] = qpos_seq[-1, :3]
     hold_frames = max(0, int(round(float(args.pose_hold_sec) * fps)))
     transition_frames = max(0, int(round(float(args.pose_transition_sec) * fps)))
     qpos_out = _add_entry_exit_pose(
